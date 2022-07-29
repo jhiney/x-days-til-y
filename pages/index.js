@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import dateDiff from "../utils/dateMath";
+import { getEventData } from "./api/events";
 
-export default function Home() {
+export async function getServerSideProps() {
+	const events = await getEventData();
+
+	return {
+		props: {
+			events
+		}
+	};
+}
+
+export default function Home(props) {
 	const [event, setEvent] = useState("");
 	const [days, setDays] = useState(0);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const { data, error } = await supabase.from("events").select();
-				setEvent(data[0].event_name);
-				setDays(dateDiff("07/28/2022", data[0].event_date));
-			} catch (err) {
-				console.log(err);
-			}
-		};
-		fetchData();
-	});
+		console.log(props);
+		setEvent(props.events[0].event_name);
+		setDays(dateDiff("07/28/2022", props.events[0].event_date));
+	}, []);
 
 	return (
 		<h1 className="text-3xl font-bold">
